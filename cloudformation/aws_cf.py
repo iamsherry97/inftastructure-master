@@ -8,6 +8,26 @@ from texttable import Texttable
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 environment = ""
 app = ""
+class select:
+    VPC = "1"
+    APPS = "2"
+    RDS = "3"
+class dir_name:
+    apps = "0"
+    infra = "1"
+class vpc:
+    create = "1"
+    delete = "2"
+    outputs = "3"
+class applications:
+    select_all = "1"
+    select_choice = "2"
+class rds:
+    create = "1"
+    delete = "2"
+class Templetes:
+    deploy = "1"
+    deleteit = "2"
 
 def main():
     """CLI used to deploy to AWS environments."""
@@ -15,7 +35,7 @@ def main():
         global environment
         global app  
         input_value = print_function()
-        if input_value == "1":
+        if input_value == select.VPC:
             print_separator()
             print("Creating VPC . . .")
             app = "vpc"
@@ -23,7 +43,7 @@ def main():
             conf = get_conf(environment)
             get_config_data = config(app,conf)
             vpc_module(conf,get_config_data[0],get_config_data[1])
-        elif input_value == "2":
+        elif input_value == select.APPS:
             apps = get_apps()
             print_separator()
             app = print_apps(apps)
@@ -31,7 +51,7 @@ def main():
             conf = get_conf(environment)
             get_config_data = config(app,conf)
             apps_module(conf,get_config_data[0],get_config_data[1])
-        elif input_value == "3":
+        elif input_value == select.RDS:
             app = "rds"
             print_separator()
             print("Creating RDS . . .")
@@ -49,9 +69,7 @@ def main():
             break
         else:
             print_separator()
-class dir_name(enum.Enum):
-    apps = False
-    infra = True
+
 def config(app,conf):
     templates = get_available_templates(conf)
     environment = conf['Environment']
@@ -81,16 +99,16 @@ def vpc_module(conf,environment,templates):
     print_separator()
     input_value = select_option_stacks(app)
 
-    if input_value == "1":
+    if input_value == vpc.create:
         identifier = conf["Identifier"]
         deploy_stack_priority_wise(conf)
         for i in range(len(templates)):
             print(print_vpc_output(identifier, templates[i]))
 
-    elif input_value == "2":
+    elif input_value == vpc.delete:
         delete_stack_priority_wise(conf)
 
-    elif input_value == "3":
+    elif input_value == vpc.outputs:
         region = conf["Region_ID"]
         identifier = conf["Identifier"]
         for i in range(len(templates)):
@@ -121,15 +139,15 @@ def apps_module(conf,environment,templates):
 
         print_separator()
 
-        if selected_input_index == "1":
+        if selected_input_index == applications.select_all:
             input_value = select_option_stacks(app)
-            if input_value == "1":
+            if input_value == Templetes.deploy:
                 deploy_stack_priority_wise(conf)
-            elif input_value == "2":
+            elif input_value == Templetes.deleteit:
                 delete_stack_priority_wise(conf)
             else:
                 print("Wrong input")
-        elif selected_input_index == "2":
+        elif selected_input_index == applications.select_choice:
             for i in range(len(templates)):
                 print("%s. %s" % (str(i + 1), templates[i]))
 
@@ -154,13 +172,13 @@ def rds_module(conf,environment,templates):
         upload_files_to_bucket(environment,conf['BucketName'], dir_name.infra)
         print("\n")
         input_value = select_option_stacks(app)   
-        if input_value == "1":
+        if input_value == rds.create:
             print("\nMake sure to specify snapshot-ID to create RDS from snapshot OR DBName to create RDS from scratch ")
             waiting=input("\nPress any key to continue. . .")
             template = templates[0]
             identifier = conf["Identifier"]
             deploy(template)
-        elif input_value == "2":
+        elif input_value == rds.delete:
             template = templates[0]
             print(template)
             delete_stack_by_checking_dependency(template, conf)
