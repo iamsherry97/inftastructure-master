@@ -109,22 +109,25 @@ Resources:
  
 
             - Name: AWS_ACCESS_KEY_ID
-              ValueFrom: arn:aws:ssm:us-west-2:329245541944:parameter/akita/prod/aws_access_key_id 
+              ValueFrom: arn:aws:ssm:us-west-2:329245541944:parameter/akita/test/aws_access_key_id 
 
             - Name: AWS_SECRET_ACCESS_KEY
-              ValueFrom: arn:aws:ssm:us-west-2:329245541944:parameter/akita/prod/aws_secret_access_key 
+              ValueFrom: arn:aws:ssm:us-west-2:329245541944:parameter/akita/test/aws_secret_access_key 
 
             - Name: BOXER_VCS_API_TOKEN
-              ValueFrom: arn:aws:ssm:us-west-2:329245541944:parameter/akita/prod/boxer_vcs_api_token 
+              ValueFrom: arn:aws:ssm:us-west-2:329245541944:parameter/akita/test/boxer_vcs_api_token 
 
             - Name: OAUTH2CLIENT_ID
-              ValueFrom: arn:aws:ssm:us-west-2:329245541944:parameter/akita/prod/oauth2client_id 
+              ValueFrom: arn:aws:ssm:us-west-2:329245541944:parameter/akita/test/oauth2client_id 
 
             - Name: OAUTH2CLIENT_SECRET
-              ValueFrom: arn:aws:ssm:us-west-2:329245541944:parameter/akita/prod/oauth2client_secret 
+              ValueFrom: arn:aws:ssm:us-west-2:329245541944:parameter/akita/test/oauth2client_secret 
 
             - Name: PGPASSWORD
-              ValueFrom: arn:aws:ssm:us-west-2:329245541944:parameter/akita/prod/pgpassword
+              ValueFrom: arn:aws:ssm:us-west-2:329245541944:parameter/akita/test/pgpassword 
+
+            - Name: PICKER_API_KEY
+              ValueFrom: arn:aws:ssm:us-west-2:329245541944:parameter/akita/test/picker_api_key
 
           Environment:
             - Name: DD_SERVICE # Defined for DataDog Service Name
@@ -136,10 +139,10 @@ Resources:
 
 
             
-            - Name: AKITA_DEBUG
-              Value: False            
             - Name: AKITA_ENV
-              Value: prod            
+              Value: test            
+            - Name: AKITA_SHEETS_FOLDER
+              Value: 0B9PkuF6zVQT4QlcxZ0d6M21GYzA            
             - Name: BOXER_VCS_HOST
               Value: https://boxer-vcs.wholebiome.com            
             - Name: BOXER_VCS_USER
@@ -147,11 +150,17 @@ Resources:
             - Name: PGDATABASE
               Value: limsprod            
             - Name: PGHOST
-              Value: akita-prod.cvckjtcmndrd.us-west-2.rds.amazonaws.com            
+              Value: akita-test.cvckjtcmndrd.us-west-2.rds.amazonaws.com            
             - Name: PGUSER
               Value: limsuser            
+            - Name: SHEETZU_SCRIPT_ID
+              Value: 1pWhnvy7Uj7RuBb71ws-8Jk701gqQ8sNGcMiEJ5U9aW0KmZa_cut8X3jp            
+            - Name: SHEETZU_TEMPLATES_ID
+              Value: 0B9PkuF6zVQT4YXRHdkY2dUkzT0k            
             - Name: USER
-              Value: prod
+              Value: test            
+            - Name: WHOLEBIOME_FOLDER_ID
+              Value: 0B_fXJBiT7Xg8cHJKUERrekVIWWc
 
           LogConfiguration:
             LogDriver: awslogs
