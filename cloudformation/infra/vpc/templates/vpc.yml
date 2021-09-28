@@ -10,22 +10,6 @@ Parameters:
     Description: Cidr Block Range for VPC
     Type: String
     Default: 10.0.0.0/16
-  CidrBlockForPubS1:
-    Description: Cidr Block Range for Public Subnet 1
-    Type: String
-    Default: 10.0.1.0/24
-  CidrBlockForPubS2:
-    Description: Cidr Block Range for Public Subnet 2
-    Type: String
-    Default: 10.0.2.0/24
-  CidrBlockForPriS1:
-    Description: Cidr Block Range for Private Subnet 1
-    Type: String
-    Default: 10.0.3.0/24
-  CidrBlockForPriS2:
-    Description: Cidr Block Range for Private Subnet 2
-    Type: String
-    Default: 10.0.4.0/24
 Resources:
   MyVpc:
     Type: 'AWS::EC2::VPC'
@@ -40,46 +24,57 @@ Resources:
     Type: 'AWS::EC2::Subnet'
     Properties:
       VpcId: !Ref MyVpc
-      MapPublicIpOnLaunch: True
-      CidrBlock: !Ref CidrBlockForPubS1
+      MapPublicIpOnLaunch: Yes
+      CidrBlock: 10.0.1.0/24
       AvailabilityZone: us-west-2a
       Tags:
         - Key: Name
-          Value: !Sub '${Identifier}-${Environment}-PublicSubnet1'
+          Value: !Sub '${Identifier}-${Environment}-PublicSubnet1}}'
 
   PublicSubnet2:
     Type: 'AWS::EC2::Subnet'
     Properties:
       VpcId: !Ref MyVpc
-      MapPublicIpOnLaunch: True
-      CidrBlock: !Ref CidrBlockForPubS2
+      MapPublicIpOnLaunch: Yes
+      CidrBlock: 10.0.2.0/24
       AvailabilityZone: us-west-2b
       Tags:
         - Key: Name
-          Value: !Sub '${Identifier}-${Environment}-PublicSubnet2'
+          Value: !Sub '${Identifier}-${Environment}-PublicSubnet2}}'
+
+  PublicSubnet3:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref MyVpc
+      MapPublicIpOnLaunch: Yes
+      CidrBlock: 10.0.3.0/24
+      AvailabilityZone: us-west-2c
+      Tags:
+        - Key: Name
+          Value: !Sub '${Identifier}-${Environment}-PublicSubnet3}}'
+
 
   PrivateSubnet1:
     Type: 'AWS::EC2::Subnet'
     Properties:
       VpcId: !Ref MyVpc
-      MapPublicIpOnLaunch: False
-      CidrBlock: !Ref CidrBlockForPriS1
+      MapPublicIpOnLaunch: No
+      CidrBlock: 10.0.4.0/24
       AvailabilityZone: us-west-2a
       Tags:
         - Key: Name
-          Value: !Sub '${Identifier}-${Environment}-PrivateSubnet1'
+          Value: !Sub '${Identifier}-${Environment}-PrivateSubnet1}}'
 
   PrivateSubnet2:
     Type: 'AWS::EC2::Subnet'
     Properties:
       VpcId: !Ref MyVpc
-      MapPublicIpOnLaunch: False
-      CidrBlock: !Ref CidrBlockForPriS2
+      MapPublicIpOnLaunch: No
+      CidrBlock: 10.0.5.0/24
       AvailabilityZone: us-west-2b
       Tags:
         - Key: Name
-          Value: !Sub '${Identifier}-${Environment}-PrivateSubnet2'
-
+          Value: !Sub '${Identifier}-${Environment}-PrivateSubnet2}}'
 
 
   MyIGW:
@@ -140,25 +135,27 @@ Resources:
     Properties:
       RouteTableId: !Ref MyPublicRouteTable
       SubnetId: !Ref PublicSubnet1
-
   PublicSubnet2Asso:
     Type: 'AWS::EC2::SubnetRouteTableAssociation'
     Properties:
       RouteTableId: !Ref MyPublicRouteTable
       SubnetId: !Ref PublicSubnet2
+  PublicSubnet3Asso:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      RouteTableId: !Ref MyPublicRouteTable
+      SubnetId: !Ref PublicSubnet3
 
   PrivateSubnet1Asso:
     Type: 'AWS::EC2::SubnetRouteTableAssociation'
     Properties:
       RouteTableId: !Ref MyPrivateRouteTable
       SubnetId: !Ref PrivateSubnet1
-
   PrivateSubnet2Asso:
     Type: 'AWS::EC2::SubnetRouteTableAssociation'
     Properties:
       RouteTableId: !Ref MyPrivateRouteTable
       SubnetId: !Ref PrivateSubnet2
-
 
 
   SecurityGroup01:
@@ -251,6 +248,8 @@ Outputs:
     Value: !Ref PublicSubnet1
   PublicSubnet2:
     Value: !Ref PublicSubnet2
+  PublicSubnet3:
+    Value: !Ref PublicSubnet3
   PrivateSubnet1:
     Value: !Ref PrivateSubnet1
   PrivateSubnet2:

@@ -10,22 +10,6 @@ Parameters:
     Description: Cidr Block Range for VPC
     Type: String
     Default: 10.0.0.0/16
-  CidrBlockForPubS1:
-    Description: Cidr Block Range for Public Subnet 1
-    Type: String
-    Default: 10.0.1.0/24
-  CidrBlockForPubS2:
-    Description: Cidr Block Range for Public Subnet 2
-    Type: String
-    Default: 10.0.2.0/24
-  CidrBlockForPriS1:
-    Description: Cidr Block Range for Private Subnet 1
-    Type: String
-    Default: 10.0.3.0/24
-  CidrBlockForPriS2:
-    Description: Cidr Block Range for Private Subnet 2
-    Type: String
-    Default: 10.0.4.0/24
 Resources:
   MyVpc:
     Type: 'AWS::EC2::VPC'
@@ -37,22 +21,37 @@ Resources:
         - Key: Name
           Value: !Sub '${Identifier}-${Environment}-VPC'
 {% if 'Subnets' in subnet_data %}
-{% for i in range(subnet_data['Subnets'] | length) %}
-  {{ subnet_data['Subnets'][i]['ResourceName'] }}:
+{% for i in range(subnet_data['Subnets'][0]['Public'] | length) %}
+  PublicSubnet{{i+1}}:
     Type: 'AWS::EC2::Subnet'
     Properties:
       VpcId: !Ref MyVpc
-      MapPublicIpOnLaunch: {{subnet_data['Subnets'][i]['MapPublicIpOnLaunch']}}
-      CidrBlock: !Ref {{subnet_data['Subnets'][i]['CidrBlock']}}
-      AvailabilityZone: {{subnet_data['Subnets'][i]['AvailabilityZone']}}
+      MapPublicIpOnLaunch: Yes
+      CidrBlock: {{subnet_data['Subnets'][0]['Public'][i]['CidrBlock']}}
+      AvailabilityZone: {{subnet_data['Subnets'][0]['Public'][i]['AvailabilityZone']}}
       Tags:
         - Key: Name
-          Value: !Sub '${Identifier}-${Environment}-{{ subnet_data['Subnets'][i]['ResourceName'] }}'
+          Value: !Sub '${Identifier}-${Environment}-PublicSubnet{{i+1}}}}'
 
 {% endfor %}
 
 {%endif%}
+{% if 'Subnets' in subnet_data %}
+{% for i in range(subnet_data['Subnets'][0]['Private'] | length) %}
+  PrivateSubnet{{i+1}}:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref MyVpc
+      MapPublicIpOnLaunch: No
+      CidrBlock: {{subnet_data['Subnets'][0]['Private'][i]['CidrBlock']}}
+      AvailabilityZone: {{subnet_data['Subnets'][0]['Private'][i]['AvailabilityZone']}}
+      Tags:
+        - Key: Name
+          Value: !Sub '${Identifier}-${Environment}-PrivateSubnet{{i+1}}}}'
 
+{% endfor %}
+
+{%endif%}
   MyIGW:
     Type: 'AWS::EC2::InternetGateway'
     Properties:
@@ -106,21 +105,22 @@ Resources:
       NatGatewayId: !Ref MyNatGat
       RouteTableId: !Ref MyPrivateRouteTable
 
-{% if 'Subnets' in subnet_data %}
-{% for i in range(subnet_data['Subnets'] | length) %}
-  {{ subnet_data['Subnets'][i]['ResourceName']}}Asso:
+{% for i in range(subnet_data['Subnets'][0]['Public'] | length) %}
+  PublicSubnet{{i+1}}Asso:
     Type: 'AWS::EC2::SubnetRouteTableAssociation'
     Properties:
-{% if subnet_data['Subnets'][i]['RouteAssociation'] == "Public" %}
       RouteTableId: !Ref MyPublicRouteTable
-{% else %}
-      RouteTableId: !Ref MyPrivateRouteTable
-{% endif %}
-      SubnetId: !Ref {{ subnet_data['Subnets'][i]['ResourceName'] }}
-
+      SubnetId: !Ref PublicSubnet{{i+1}}
 {% endfor %}
 
-{% endif %}
+{% for i in range(subnet_data['Subnets'][0]['Private'] | length) %}
+  PrivateSubnet{{i+1}}Asso:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      RouteTableId: !Ref MyPrivateRouteTable
+      SubnetId: !Ref PrivateSubnet{{i+1}}
+{% endfor %}
+
 
 {% if 'SecurityGroup' in sg_data %}
 {% for i in range(sg_data['SecurityGroup'] | length) %}
@@ -158,9 +158,13 @@ Outputs:
   VPC:
     Description: VPC ID
     Value: !Ref MyVpc
-{% for i in range(subnet_data['Subnets'] | length) %}
-  {{ subnet_data['Subnets'][i]['ResourceName'] }}:
-    Value: !Ref {{ subnet_data['Subnets'][i]['ResourceName'] }}
+{% for i in range(subnet_data['Subnets'][0]['Public'] | length) %}
+  PublicSubnet{{i+1}}:
+    Value: !Ref PublicSubnet{{i+1}}
+{%endfor%}
+{% for i in range(subnet_data['Subnets'][0]['Private'] | length) %}
+  PrivateSubnet{{i+1}}:
+    Value: !Ref PrivateSubnet{{i+1}}
 {%endfor%}
 {% for i in range(sg_data['SecurityGroup'] | length) %}
   {{ sg_data['SecurityGroup'][i]['ResourceName'] }}:
