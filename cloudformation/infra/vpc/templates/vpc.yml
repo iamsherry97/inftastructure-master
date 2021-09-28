@@ -29,7 +29,7 @@ Resources:
       AvailabilityZone: us-west-2a
       Tags:
         - Key: Name
-          Value: !Sub '${Identifier}-${Environment}-PublicSubnet1}}'
+          Value: !Sub '${Identifier}-${Environment}-PublicSubnet1'
 
   PublicSubnet2:
     Type: 'AWS::EC2::Subnet'
@@ -40,7 +40,7 @@ Resources:
       AvailabilityZone: us-west-2b
       Tags:
         - Key: Name
-          Value: !Sub '${Identifier}-${Environment}-PublicSubnet2}}'
+          Value: !Sub '${Identifier}-${Environment}-PublicSubnet2'
 
   PublicSubnet3:
     Type: 'AWS::EC2::Subnet'
@@ -51,7 +51,7 @@ Resources:
       AvailabilityZone: us-west-2c
       Tags:
         - Key: Name
-          Value: !Sub '${Identifier}-${Environment}-PublicSubnet3}}'
+          Value: !Sub '${Identifier}-${Environment}-PublicSubnet3'
 
 
   PrivateSubnet1:
@@ -63,7 +63,7 @@ Resources:
       AvailabilityZone: us-west-2a
       Tags:
         - Key: Name
-          Value: !Sub '${Identifier}-${Environment}-PrivateSubnet1}}'
+          Value: !Sub '${Identifier}-${Environment}-PrivateSubnet1'
 
   PrivateSubnet2:
     Type: 'AWS::EC2::Subnet'
@@ -74,7 +74,7 @@ Resources:
       AvailabilityZone: us-west-2b
       Tags:
         - Key: Name
-          Value: !Sub '${Identifier}-${Environment}-PrivateSubnet2}}'
+          Value: !Sub '${Identifier}-${Environment}-PrivateSubnet2'
 
 
   MyIGW:
@@ -158,7 +158,7 @@ Resources:
       SubnetId: !Ref PrivateSubnet2
 
 
-  SecurityGroup01:
+  SecurityGroup1:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       GroupDescription: 'This is the description of group'
@@ -192,8 +192,8 @@ Resources:
       VpcId: !Ref MyVpc
       Tags:
         - Key: Name
-          Value: !Sub '${Identifier}-${Environment}-SecurityGroup01'
-  SecurityGroup02:
+          Value: !Sub '${Identifier}-${Environment}-SecurityGroup1'
+  SecurityGroup2:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       GroupDescription: 'This is the description of group'
@@ -219,8 +219,8 @@ Resources:
       VpcId: !Ref MyVpc
       Tags:
         - Key: Name
-          Value: !Sub '${Identifier}-${Environment}-SecurityGroup02'
-  SecurityGroup03:
+          Value: !Sub '${Identifier}-${Environment}-SecurityGroup2'
+  SecurityGroup3:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       GroupDescription: 'This is the description of group'
@@ -238,7 +238,7 @@ Resources:
       VpcId: !Ref MyVpc
       Tags:
         - Key: Name
-          Value: !Sub '${Identifier}-${Environment}-SecurityGroup03'
+          Value: !Sub '${Identifier}-${Environment}-SecurityGroup3'
           
 Outputs:
   VPC:
@@ -254,12 +254,12 @@ Outputs:
     Value: !Ref PrivateSubnet1
   PrivateSubnet2:
     Value: !Ref PrivateSubnet2
-  SecurityGroup01:
+  SecurityGroup1:
     Description: 'This is the description of group'
-    Value: !Ref SecurityGroup01
-  SecurityGroup02:
+    Value: !Ref SecurityGroup1
+  SecurityGroup2:
     Description: 'This is the description of group'
-    Value: !Ref SecurityGroup02
-  SecurityGroup03:
+    Value: !Ref SecurityGroup2
+  SecurityGroup3:
     Description: 'This is the description of group'
-    Value: !Ref SecurityGroup03
+    Value: !Ref SecurityGroup3

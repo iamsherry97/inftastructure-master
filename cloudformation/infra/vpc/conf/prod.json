@@ -43,7 +43,6 @@
             ]
         }],
         "_securitygroup": [{
-            "ResourceName": "SecurityGroup01",
             "GroupDescription": "This is the description of group",
             "GroupName": "SgGroupName",
             "inbound":[
@@ -96,7 +95,6 @@
             
         },
         {
-            "ResourceName": "SecurityGroup02",
             "GroupDescription": "This is the description of group",
             "GroupName": "Sg-02",
             "inbound":[
@@ -134,7 +132,6 @@
             ]
         },
         {
-            "ResourceName": "SecurityGroup03",
             "GroupDescription": "This is the description of group",
             "GroupName": "Sg-03",
             "inbound":[

@@ -31,7 +31,7 @@ Resources:
       AvailabilityZone: {{subnet_data['Subnets'][0]['Public'][i]['AvailabilityZone']}}
       Tags:
         - Key: Name
-          Value: !Sub '${Identifier}-${Environment}-PublicSubnet{{i+1}}}}'
+          Value: !Sub '${Identifier}-${Environment}-PublicSubnet{{i+1}}'
 
 {% endfor %}
 
@@ -47,7 +47,7 @@ Resources:
       AvailabilityZone: {{subnet_data['Subnets'][0]['Private'][i]['AvailabilityZone']}}
       Tags:
         - Key: Name
-          Value: !Sub '${Identifier}-${Environment}-PrivateSubnet{{i+1}}}}'
+          Value: !Sub '${Identifier}-${Environment}-PrivateSubnet{{i+1}}'
 
 {% endfor %}
 
@@ -124,7 +124,7 @@ Resources:
 
 {% if 'SecurityGroup' in sg_data %}
 {% for i in range(sg_data['SecurityGroup'] | length) %}
-  {{ sg_data['SecurityGroup'][i]['ResourceName'] }}:
+  SecurityGroup{{i+1}}:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       GroupDescription: '{{ sg_data['SecurityGroup'][i]['GroupDescription'] }}'
@@ -150,7 +150,7 @@ Resources:
       VpcId: !Ref MyVpc
       Tags:
         - Key: Name
-          Value: !Sub '${Identifier}-${Environment}-{{ sg_data['SecurityGroup'][i]['ResourceName'] }}'
+          Value: !Sub '${Identifier}-${Environment}-SecurityGroup{{i+1}}'
 {%endfor%}
 {%endif %}
           
@@ -167,7 +167,7 @@ Outputs:
     Value: !Ref PrivateSubnet{{i+1}}
 {%endfor%}
 {% for i in range(sg_data['SecurityGroup'] | length) %}
-  {{ sg_data['SecurityGroup'][i]['ResourceName'] }}:
+  SecurityGroup{{i+1}}:
     Description: '{{ sg_data['SecurityGroup'][i]['GroupDescription'] }}'
-    Value: !Ref {{ sg_data['SecurityGroup'][i]['ResourceName'] }}
+    Value: !Ref SecurityGroup{{i+1}}
 {%endfor%}
