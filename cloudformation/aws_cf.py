@@ -1,65 +1,153 @@
 #!/usr/bin/python
-import json, os, boto3, sys, time, collections, jinja2
+import json, os, boto3, sys, time, collections, jinja2, enum
+from botocore.exceptions import ConfigNotFound
 from jinja2 import Environment, FileSystemLoader
 from pathlib import Path
+from texttable import Texttable
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 environment = ""
 app = ""
+class select:
+    VPC = "1"
+    APPS = "2"
+    RDS = "3"
+class dir_name:
+    apps = "0"
+    infra = "1"
+class vpc:
+    create = "1"
+    delete = "2"
+    outputs = "3"
+class applications:
+    select_all = "1"
+    select_choice = "2"
+class rds:
+    create = "1"
+    delete = "2"
+class Templetes:
+    deploy = "1"
+    deleteit = "2"
 
 def main():
     """CLI used to deploy to AWS environments."""
     while True:
         global environment
-        global app
-
-        apps = get_apps()
-
-        for i in range(len(apps)):
-            print(str(i + 1) + ". " + apps[i])
-
-        selected_input_index = input("\nPlease select the App: ")
-        app = apps[int(selected_input_index) - 1]
-        print("You have selected: " + app)
+        global app  
+        input_value = print_function()
+        if input_value == select.VPC:
+            print_separator()
+            print("Creating VPC . . .")
+            app = "vpc"
+            environment = print_environments(app)      
+            conf = get_conf(environment)
+            get_config_data = config(app,conf)
+            vpc_module(conf,get_config_data[0],get_config_data[1])
+        elif input_value == select.APPS:
+            apps = get_apps()
+            print_separator()
+            app = print_apps(apps)
+            environment = print_environments(app)      
+            conf = get_conf(environment)
+            get_config_data = config(app,conf)
+            apps_module(conf,get_config_data[0],get_config_data[1])
+        elif input_value == select.RDS:
+            app = "rds"
+            print_separator()
+            print("Creating RDS . . .")
+            environment = print_environments(app)      
+            conf = get_conf(environment)
+            get_config_data = config(app,conf)
+            rds_module(conf,get_config_data[0],get_config_data[1])
 
         print_separator()
+        print("1. Please press '1' to continue")
+        print("2. Press another key to exit the cli")
+        selected_input_index = input("\nHow do you want to proceed: ")
+        if str(selected_input_index) != "1":
+            print("Bye!")
+            break
+        else:
+            print_separator()
 
-        environments = get_environments()
+def config(app,conf):
+    templates = get_available_templates(conf)
+    environment = conf['Environment']
+    perform_jinja_templating(environment, app, conf)
+    return environment,templates
+def print_apps(apps):
+    for i in range(len(apps)):
+        print(str(i + 1) + ". " + apps[i])
+    selected_input_index = input("\nPlease select the App: ")
+    app = apps[int(selected_input_index)-1]
+    print("You have selected: " + app)
+    return app
 
-        for i in range(len(environments)):
-            print(str(i + 1) + ". " + environments[i])
+def print_environments(app):
+    print("\nChoose the environment:")
+    environments = get_environments(app)
+    for i in range(len(environments)):
+        print(str(i + 1) + ". " + environments[i])
+    selected_input_index = input("\nPlease select the environment: ")
+    env_data = environments[int(selected_input_index) - 1]
+    print("You have selected: " + env_data)
+    return env_data
 
-        selected_input_index = input("\nPlease select the environment: ")
-        environment = environments[int(selected_input_index) - 1]
-        print("You have selected: " + environment)
+def vpc_module(conf,environment,templates):
+    print("Uploading templates, Please wait ...")
+    upload_files_to_bucket(environment,conf['BucketName'], dir_name.infra)
+    print_separator()
+    input_value = select_option_stacks(app)
 
+    if input_value == vpc.create:
+        identifier = conf["Identifier"]
+        deploy_stack_priority_wise(conf)
+        for i in range(len(templates)):
+            print(print_vpc_output(identifier, templates[i]))
+
+    elif input_value == vpc.delete:
+        delete_stack_priority_wise(conf)
+
+    elif input_value == vpc.outputs:
+        region = conf["Region_ID"]
+        identifier = conf["Identifier"]
+        for i in range(len(templates)):
+            stack = {}
+            stackcheck = {}
+            stack[i] = "%s-%s-%s" % (identifier, environment, templates[i])
+            cloudformation_client = boto3.client('cloudformation', region_name=region)
+            stackcheck[i] = does_stack_exist(stack[i], cloudformation_client)
+            if (stackcheck[i] != None ):
+                print("\n")
+                print_vpc_output(identifier, templates[i])
+            else:
+                print("\nNo Template found!\n")    
+
+    else :
+        print("Vpc creation skipped")
         print_separator()
 
-        conf = get_conf()
-        environment = conf['Environment']
-        perform_jinja_templating(environment, app, conf)
-        templates = get_available_templates(conf)
+
+def apps_module(conf,environment,templates):
         print("Uploading templates, Please wait ...")
-        upload_files_to_bucket(conf['BucketName'])
-
+        upload_files_to_bucket(environment,conf['BucketName'], dir_name.apps) 
         print("\n")
         print("1. Select all the templates")
         print("2. Select the single template yourself")
+        print("\nOr press any key to skip this step . .")
         selected_input_index = input("\nHow do you want to proceed: ")
 
         print_separator()
 
-        if selected_input_index == "1":
-
-            print("1. Do you want to update/create the stack")
-            print("2. Do you want to delete the stack")
-            selected_input_index = input("\nHow do you want to proceed: ")
-
-            if selected_input_index == "1":
+        if selected_input_index == applications.select_all:
+            input_value = select_option_stacks(app)
+            if input_value == Templetes.deploy:
                 deploy_stack_priority_wise(conf)
-            else:
+            elif input_value == Templetes.deleteit:
                 delete_stack_priority_wise(conf)
-        else:
+            else:
+                print("Wrong input")
+        elif selected_input_index == applications.select_choice:
             for i in range(len(templates)):
                 print("%s. %s" % (str(i + 1), templates[i]))
 
@@ -68,27 +156,51 @@ def main():
 
             print_separator()
 
-            print("1. Do you want to update/create the stack")
-            print("2. Do you want to delete the stack")
-            selected_input_index = input("\nHow do you want to proceed: ")
+            input_value = select_option_stacks(app)
 
-            if str(selected_input_index) == "1":
+            if str(input_value) == "1":
                 deploy(template)
             else:
                 delete_stack_by_checking_dependency(template, conf)
+        else:
+            print("Wrong input. Please try again . .")
 
         print_separator()
 
-        print("1. Please press '1' to continue")
-        print("2. Press another key to exit the cli")
-        selected_input_index = input("\nHow do you want to proceed: ")
-
-        if str(selected_input_index) != "1":
-            print("Bye!")
-            break
+def rds_module(conf,environment,templates):
+        print("Uploading templates, Please wait ...")
+        upload_files_to_bucket(environment,conf['BucketName'], dir_name.infra)
+        print("\n")
+        input_value = select_option_stacks(app)   
+        if input_value == rds.create:
+            print("\nMake sure to specify snapshot-ID to create RDS from snapshot OR DBName to create RDS from scratch ")
+            waiting=input("\nPress any key to continue. . .")
+            template = templates[0]
+            identifier = conf["Identifier"]
+            deploy(template)
+        elif input_value == rds.delete:
+            template = templates[0]
+            print(template)
+            delete_stack_by_checking_dependency(template, conf)
         else:
+            print("RDS creation skipped")
             print_separator()
 
+def print_function():
+    print("\n""CLI used to deploy to AWS environments.""\n")
+    print("Press '1' to create a VPC")
+    print("Press '2' to deploy APPS")
+    print("Press '3' to create RDS ")
+    selected_input= input("\nPlease select the the required option: ")
+    return selected_input
+def print_vpc_output(identifier, template):
+    data = os.popen("aws cloudformation describe-stacks --stack-name %s-%s-%s" % (identifier, environment, template)).read()
+    data_dump = json.loads(data)
+    outputs = data_dump['Stacks'][0]['Outputs']
+    t = Texttable()
+    for i in outputs:
+       t.add_rows( [['ResourceName', 'ResourceValue'], [i['OutputKey'], i['OutputValue'] ]])
+    print(t.draw())
 
 def delete_stack_by_checking_dependency(template, conf):
     region = conf["Region_ID"]
@@ -110,11 +222,9 @@ def delete_stack_by_checking_dependency(template, conf):
     if not is_higher_priority_stack_exists:
         delete(template)
 
-
-
 def delete(template):
     """ destroy the cloudformation templates to an environment"""
-    conf = get_conf()
+    conf = get_conf(environment)
     region = conf["Region_ID"]
     identifier = conf['Identifier']
     cloudformation_client = boto3.client('cloudformation', region_name=region)
@@ -132,7 +242,7 @@ def delete(template):
 
 
 def deploy(template):
-    conf = get_conf()
+    conf = get_conf(environment)
     region = conf["Region_ID"]
     bucket_uri = conf["Bucket_URI"]
     identifier = conf["Identifier"]
@@ -141,7 +251,7 @@ def deploy(template):
     stack = "%s-%s-%s" % (identifier, environment, template)
     parameters = get_parameters(conf, template)
     template_path = conf[template]["_Path"]
-    template_url = bucket_uri + environment + template_path
+    template_url = bucket_uri + template_path
 
     stack_id = does_stack_exist(stack, cloudformation_client)
     print_separator()
@@ -149,6 +259,7 @@ def deploy(template):
 
     if stack_id is None:
         print("\nCreating stack")
+        print(template_url)
         stack_id = cloudformation_client.create_stack(StackName=stack, DisableRollback=True, TemplateURL=template_url,
                                                       Parameters=parameters,
                                                       Capabilities=["CAPABILITY_IAM", "CAPABILITY_NAMED_IAM"])
@@ -166,7 +277,7 @@ def deploy(template):
 
 
 def get_secret_from_ssm(key):
-    conf = get_conf()
+    conf = get_conf(environment)
     region = conf["Region_ID"]
     parameter_store = boto3.client('ssm', region_name=region)
     parameter = parameter_store.get_parameter(
@@ -175,9 +286,23 @@ def get_secret_from_ssm(key):
     )
     return parameter['Parameter']['Value']
 
+def select_option_stacks(app):
+    print("1. Do you want to update/create the stack")
+    print("2. Do you want to delete the stack")
+    if app == 'vpc':
+        print("3. Show VPC & TaskDefinition outputs")
+    else:
+        print("\nOR Press any key to skip this step..")
+    selected_input_index = input("\nHow do you want to proceed: ")
+    return selected_input_index
 
-def get_conf():
-    conf_path = 'apps/%s/conf/%s.json' % (app, environment)
+def get_conf(environment):
+    dir_name = ""
+    if app == "vpc" or app == "rds":
+        dir_name = "infra"
+    else:
+        dir_name = "apps"
+    conf_path = '%s/%s/conf/%s.json' % (dir_name, app, environment)
     # -- Confirm parameters file exists
     if os.path.isfile(conf_path):
         conf_data = open(conf_path).read()
@@ -291,9 +416,14 @@ def get_apps():
         apps.append(appname)
     return apps
 
-def get_environments():
+def get_environments(app):
     environments = []
-    for filename in os.listdir("apps/" + app + "/conf/"):
+    dir_name = ""
+    if app == "vpc" or app == "rds":
+        dir_name = "infra"
+    else:
+        dir_name = "apps"
+    for filename in os.listdir("%s/"% (dir_name) + app + "/conf/" ):
             environments.append(os.path.splitext(filename)[0])
     return environments
 
@@ -311,15 +441,23 @@ def delete_stack_priority_wise(conf):
     for template in sorted_stacks_list:
         delete(template)
 
-def upload_files_to_bucket(bucket_name):
-    os.system("aws s3 cp apps/%s/ s3://%s%s/ --recursive " % (app, bucket_name, environment))
-    os.system("aws s3 cp common s3://%s%s/common/ --recursive " % (bucket_name, environment))
+def upload_files_to_bucket(environment,bucket_name, check_dir):
+    if check_dir == dir_name.infra:
+        os.system("aws s3 cp infra/%s/ s3://%s%s/ --recursive " % (app, bucket_name, environment))
+    else:
+        os.system("aws s3 cp apps/%s/ s3://%s%s/ --recursive " % (app, bucket_name, environment))
+        os.system("aws s3 cp common s3://%s%s/common/ --recursive " % (bucket_name, environment))
 
 def perform_jinja_templating(environment, app, conf):
-    jinja_template_path = "apps/{app_name}/templates/task_definitions/".format(app_name=app)
+    dir_name = ""
+    if app == "vpc":
+        dir_name = "infra"
+        jinja_template_path = "%s/%s/templates/" % (dir_name, app)
+    else:
+        dir_name = "apps"
+        jinja_template_path = "%s/%s/templates/task_definitions/" % (dir_name, app)
     jinja_template_file_name = "{app_name}.tpl".format(app_name=app)
     complete_jinja_template_path = jinja_template_path + jinja_template_file_name
-
 
     if 'Service' in conf and os.path.exists(complete_jinja_template_path):
         data = {}
@@ -340,6 +478,25 @@ def perform_jinja_templating(environment, app, conf):
         with open(jinja_template_path + yaml_file_name, "w") as yaml_file:
             yaml_file.write(rendered_text)
 
+    if 'VPC' in conf and os.path.exists(complete_jinja_template_path):
+        sg_data = {}
+        subnet_data = {}
 
+        if '_securitygroup' in conf['VPC']:
+            sg_data['SecurityGroup']= conf['VPC']['_securitygroup']
+        if '_subnets' in conf['VPC']:
+            subnet_data['Subnets'] = conf['VPC']['_subnets']
+
+
+        j2_env = Environment(loader=FileSystemLoader(THIS_DIR),
+                         trim_blocks=True)
+        rendered_text = j2_env.get_template(complete_jinja_template_path).render(
+                            sg_data = sg_data,
+                            subnet_data = subnet_data
+                        )
+        yaml_file_name = Path(jinja_template_file_name).stem + ".yml"
+        with open(jinja_template_path + yaml_file_name, "w") as yaml_file:
+            yaml_file.write(rendered_text)
+        
 if __name__ == '__main__':
     main()
