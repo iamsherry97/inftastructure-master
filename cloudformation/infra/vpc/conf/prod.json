@@ -43,7 +43,7 @@
             ]
         }],
         "_securitygroup": [{
-            "Name": "Sg-01",
+            "Name": "Sg01",
             "GroupDescription": "This is the description of group",
             "GroupName": "SgGroupName",
             "inbound":[
@@ -51,8 +51,8 @@
                     "CidrIp": "0.0.0.0/16",
                     "SourceSecurityGroupId": "",
                     "IpProtocol": "tcp",
-                    "FromPort": "-1",
-                    "ToPort": "-1",
+                    "FromPort": "3306",
+                    "ToPort": "3306",
                     "Description": "'Allow Port'"
                 },
                 {
@@ -96,7 +96,7 @@
             
         },
         {
-            "Name": "Sg-02",
+            "Name": "Sg02",
             "GroupDescription": "This is the description of group",
             "GroupName": "Sg-02",
             "inbound":[
@@ -134,7 +134,7 @@
             ]
         },
         {
-            "Name": "Sg-03",
+            "Name": "Sg03",
             "GroupDescription": "This is the description of group",
             "GroupName": "Sg-03",
             "inbound":[
