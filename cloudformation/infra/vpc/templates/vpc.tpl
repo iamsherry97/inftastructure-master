@@ -124,7 +124,7 @@ Resources:
 
 {% if 'SecurityGroup' in sg_data %}
 {% for i in range(sg_data['SecurityGroup'] | length) %}
-  SecurityGroup{{i+1}}:
+  {{ sg_data['SecurityGroup'][i]['Name'] }}:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       GroupDescription: '{{ sg_data['SecurityGroup'][i]['GroupDescription'] }}'
@@ -150,7 +150,7 @@ Resources:
       VpcId: !Ref MyVpc
       Tags:
         - Key: Name
-          Value: !Sub '${Identifier}-${Environment}-SecurityGroup{{i+1}}'
+          Value: !Sub '${Identifier}-${Environment}-{{ sg_data['SecurityGroup'][i]['Name'] }}'
 {%endfor%}
 {%endif %}
           
@@ -167,7 +167,7 @@ Outputs:
     Value: !Ref PrivateSubnet{{i+1}}
 {%endfor%}
 {% for i in range(sg_data['SecurityGroup'] | length) %}
-  SecurityGroup{{i+1}}:
+  {{ sg_data['SecurityGroup'][i]['Name'] }}:
     Description: '{{ sg_data['SecurityGroup'][i]['GroupDescription'] }}'
-    Value: !Ref SecurityGroup{{i+1}}
+    Value: !Ref {{ sg_data['SecurityGroup'][i]['Name'] }}
 {%endfor%}

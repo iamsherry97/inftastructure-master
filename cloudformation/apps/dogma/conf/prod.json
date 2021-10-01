@@ -1,9 +1,15 @@
 {
     "Region_ID": "us-west-2",
-    "Bucket_URI" : "https://cf-templates-1mhd4gm8nbj46-us-west-2.s3.us-west-2.amazonaws.com/dogma/",
-    "BucketName": "cf-templates-1mhd4gm8nbj46-us-west-2/dogma/",
+    "Bucket_URI" : "https://dogmaprod.s3.us-west-2.amazonaws.com/dogma/",
+    "BucketName": "dogmaprod/dogma/",
     "Environment": "prod",
     "Identifier": "Dogma",
+    "S3":    {
+        "_Priority": 1,
+        "_Path" : "/common/s3.yml",
+        "BucketName": "dogma",
+        "BucketAccessControl": "Private"
+    },
     "PrivateALB" : {
         "_Priority" : 1,
         "_Path" : "/common/alb.yml",

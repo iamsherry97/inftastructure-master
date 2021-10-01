@@ -158,7 +158,7 @@ Resources:
       SubnetId: !Ref PrivateSubnet2
 
 
-  SecurityGroup1:
+  Sg-01:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       GroupDescription: 'This is the description of group'
@@ -192,8 +192,8 @@ Resources:
       VpcId: !Ref MyVpc
       Tags:
         - Key: Name
-          Value: !Sub '${Identifier}-${Environment}-SecurityGroup1'
-  SecurityGroup2:
+          Value: !Sub '${Identifier}-${Environment}-Sg-01'
+  Sg-02:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       GroupDescription: 'This is the description of group'
@@ -219,8 +219,8 @@ Resources:
       VpcId: !Ref MyVpc
       Tags:
         - Key: Name
-          Value: !Sub '${Identifier}-${Environment}-SecurityGroup2'
-  SecurityGroup3:
+          Value: !Sub '${Identifier}-${Environment}-Sg-02'
+  Sg-03:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       GroupDescription: 'This is the description of group'
@@ -238,7 +238,7 @@ Resources:
       VpcId: !Ref MyVpc
       Tags:
         - Key: Name
-          Value: !Sub '${Identifier}-${Environment}-SecurityGroup3'
+          Value: !Sub '${Identifier}-${Environment}-Sg-03'
           
 Outputs:
   VPC:
@@ -254,12 +254,12 @@ Outputs:
     Value: !Ref PrivateSubnet1
   PrivateSubnet2:
     Value: !Ref PrivateSubnet2
-  SecurityGroup1:
+  Sg-01:
     Description: 'This is the description of group'
-    Value: !Ref SecurityGroup1
-  SecurityGroup2:
+    Value: !Ref Sg-01
+  Sg-02:
     Description: 'This is the description of group'
-    Value: !Ref SecurityGroup2
-  SecurityGroup3:
+    Value: !Ref Sg-02
+  Sg-03:
     Description: 'This is the description of group'
-    Value: !Ref SecurityGroup3
+    Value: !Ref Sg-03

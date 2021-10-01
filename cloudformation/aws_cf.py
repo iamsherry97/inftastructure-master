@@ -251,7 +251,7 @@ def deploy(template):
     stack = "%s-%s-%s" % (identifier, environment, template)
     parameters = get_parameters(conf, template)
     template_path = conf[template]["_Path"]
-    template_url = bucket_uri + template_path
+    template_url = bucket_uri + environment + template_path
 
     stack_id = does_stack_exist(stack, cloudformation_client)
     print_separator()

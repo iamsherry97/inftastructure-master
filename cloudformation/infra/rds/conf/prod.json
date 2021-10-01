@@ -1,7 +1,7 @@
 {
     "Region_ID": "us-west-2",
-    "Bucket_URI" : "https://dogmatest1.s3.us-west-2.amazonaws.com/",
-    "BucketName": "dogma",
+    "Bucket_URI" : "https://dogmaprod.s3.us-west-2.amazonaws.com/dogma/",
+    "BucketName": "dogmaprod/dogma/",
     "Environment": "prod",
     "Identifier": "Dogma",
     "RDS" : {

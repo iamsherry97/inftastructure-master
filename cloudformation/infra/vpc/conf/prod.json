@@ -1,7 +1,7 @@
 {
     "Region_ID": "us-west-2",
-    "Bucket_URI" : "https://dogmatest1.s3.us-west-2.amazonaws.com/",
-    "BucketName": "dogma",
+    "Bucket_URI" : "https://dogmaprod.s3.us-west-2.amazonaws.com/dogma/",
+    "BucketName": "dogmaprod/dogma/",
     "Environment": "prod",
     "Identifier": "Dogma",
     "DogmaTaskDefinitionRole":    {
@@ -43,6 +43,7 @@
             ]
         }],
         "_securitygroup": [{
+            "Name": "Sg-01",
             "GroupDescription": "This is the description of group",
             "GroupName": "SgGroupName",
             "inbound":[
@@ -50,8 +51,8 @@
                     "CidrIp": "0.0.0.0/16",
                     "SourceSecurityGroupId": "",
                     "IpProtocol": "tcp",
-                    "FromPort": "3306",
-                    "ToPort": "3306",
+                    "FromPort": "-1",
+                    "ToPort": "-1",
                     "Description": "'Allow Port'"
                 },
                 {
@@ -95,6 +96,7 @@
             
         },
         {
+            "Name": "Sg-02",
             "GroupDescription": "This is the description of group",
             "GroupName": "Sg-02",
             "inbound":[
@@ -132,6 +134,7 @@
             ]
         },
         {
+            "Name": "Sg-03",
             "GroupDescription": "This is the description of group",
             "GroupName": "Sg-03",
             "inbound":[

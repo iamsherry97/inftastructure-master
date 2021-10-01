@@ -8,7 +8,7 @@
     "S3":    {
         "_Priority": 1,
         "_Path" : "/common/s3.yml",
-        "BucketName": "dogma-test1",
+        "BucketName": "dogma",
         "BucketAccessControl": "Private"
     },
 
