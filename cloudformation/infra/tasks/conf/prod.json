@@ -1,0 +1,15 @@
+{
+    "Region_ID": "us-west-2",
+    "Bucket_URI" : "https://wajahat2-test.s3.us-west-2.amazonaws.com/infra/vpc/",
+    "BucketName": "wajahat2-test/infra/vpc/",
+    "Environment": "sandbox",
+    "Identifier": "depatment",
+    "DogmaTaskDefinitionRole":    {
+        "_Priority": 1,
+        "_Path" : "/templates/DogmaTaskDefRole.yml"
+    },    
+    "AkitaTaskDefinitionRole":    {
+        "_Priority": 1,
+        "_Path" : "/templates/AkitaTaskDefRole.yml"
+    }
+}

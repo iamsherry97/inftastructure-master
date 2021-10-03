@@ -157,88 +157,92 @@ Resources:
       RouteTableId: !Ref MyPrivateRouteTable
       SubnetId: !Ref PrivateSubnet2
 
+  Sg01Ingress01:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      CidrIp: 0.0.0.0/16
+      GroupId: !Ref Sg01
+      IpProtocol: tcp
+      FromPort: 3306
+      ToPort: 3306
+  Sg01Ingress02:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      CidrIp: 0.0.0.0/16
+      GroupId: !Ref Sg01
+      IpProtocol: tcp
+      FromPort: 22
+      ToPort: 22
+  Sg01Ingress03:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      SourceSecurityGroupId: !Ref Sg01
+      GroupId: !Ref Sg01
+      IpProtocol: tcp
+      FromPort: 3306
+      ToPort: 3306
+  Sg02Ingress01:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      SourceSecurityGroupId: !Ref Sg02
+      GroupId: !Ref Sg02
+      IpProtocol: tcp
+      FromPort: 22
+      ToPort: 22
+  Sg02Ingress02:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      CidrIp: 0.0.0.0/0
+      GroupId: !Ref Sg02
+      IpProtocol: -1
+      FromPort: -1
+      ToPort: -1
 
-  Sg-01:
+  Sg01Egress01:
+    Type: 'AWS::EC2::SecurityGroupEgress'
+    Properties:
+      CidrIp: 0.0.0.0/0
+      GroupId: !Ref Sg01
+      IpProtocol: -1
+      FromPort: -1
+      ToPort: -1
+  Sg02Egress01:
+    Type: 'AWS::EC2::SecurityGroupEgress'
+    Properties:
+      CidrIp: 10.0.0.0/16
+      GroupId: !Ref Sg02
+      IpProtocol: tcp
+      FromPort: 80
+      ToPort: 80
+  Sg02Egress02:
+    Type: 'AWS::EC2::SecurityGroupEgress'
+    Properties:
+      CidrIp: 0.0.0.0/0
+      GroupId: !Ref Sg02
+      IpProtocol: -1
+      FromPort: -1
+      ToPort: -1
+
+
+
+  Sg01:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       GroupDescription: 'This is the description of group'
       GroupName: SgGroupName
-      SecurityGroupIngress:
-        - CidrIp: 0.0.0.0/16
-          IpProtocol: tcp
-          FromPort: 3306
-          ToPort: 3306
-        - CidrIp: 0.0.0.0/16
-          IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
-        - CidrIp: 0.0.0.0/16
-          IpProtocol: tcp
-          FromPort: 443
-          ToPort: 443
-        - CidrIp: 0.0.0.0/16
-          IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-      SecurityGroupEgress:
-        - CidrIp: 10.0.0.0/16
-          IpProtocol: tcp
-          FromPort: 3306
-          ToPort: 3306
-        - CidrIp: 10.0.0.0/16
-          IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
       VpcId: !Ref MyVpc
       Tags:
         - Key: Name
-          Value: !Sub '${Identifier}-${Environment}-Sg-01'
-  Sg-02:
+          Value: !Sub '${Identifier}-${Environment}-Sg01'
+  Sg02:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       GroupDescription: 'This is the description of group'
       GroupName: Sg-02
-      SecurityGroupIngress:
-        - CidrIp: 0.0.0.0/16
-          IpProtocol: tcp
-          FromPort: 3306
-          ToPort: 3306
-        - CidrIp: 0.0.0.0/16
-          IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
-      SecurityGroupEgress:
-        - CidrIp: 10.0.0.0/16
-          IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
-        - CidrIp: 10.0.0.0/16
-          IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
       VpcId: !Ref MyVpc
       Tags:
         - Key: Name
-          Value: !Sub '${Identifier}-${Environment}-Sg-02'
-  Sg-03:
-    Type: 'AWS::EC2::SecurityGroup'
-    Properties:
-      GroupDescription: 'This is the description of group'
-      GroupName: Sg-03
-      SecurityGroupIngress:
-        - CidrIp: 10.0.0.0/16
-          IpProtocol: tcp
-          FromPort: 22
-          ToPort: 22
-      SecurityGroupEgress:
-        - CidrIp: 10.0.0.0/16
-          IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-      VpcId: !Ref MyVpc
-      Tags:
-        - Key: Name
-          Value: !Sub '${Identifier}-${Environment}-Sg-03'
+          Value: !Sub '${Identifier}-${Environment}-Sg02'
           
 Outputs:
   VPC:
@@ -254,12 +258,9 @@ Outputs:
     Value: !Ref PrivateSubnet1
   PrivateSubnet2:
     Value: !Ref PrivateSubnet2
-  Sg-01:
+  Sg01:
     Description: 'This is the description of group'
-    Value: !Ref Sg-01
-  Sg-02:
+    Value: !Ref Sg01
+  Sg02:
     Description: 'This is the description of group'
-    Value: !Ref Sg-02
-  Sg-03:
-    Description: 'This is the description of group'
-    Value: !Ref Sg-03
+    Value: !Ref Sg02

@@ -39,15 +39,10 @@ Parameters:
     Description: 'The instance type of database server.'
     Type: String
     Default: 'db.t2.micro'
-    AllowedValues: [db.t2.micro, db.t3.medium, db.m1.small, db.m1.medium, db.m1.large, db.m1.xlarge,
-      db.m2.xlarge, db.m2.2xlarge, db.m2.4xlarge, db.m3.medium, db.m3.large, db.m3.xlarge,
-      db.m3.2xlarge, db.m4.large, db.m4.xlarge, db.m4.2xlarge, db.m4.4xlarge, db.m4.10xlarge,
-      db.r3.large, db.r3.xlarge, db.r3.2xlarge, db.r3.4xlarge, db.r3.8xlarge, db.m2.xlarge,
-      db.m2.2xlarge, db.m2.4xlarge, db.cr1.8xlarge, db.t2.micro, db.t2.small, db.t2.medium,
-      db.t2.large]    
   DBName:
     Description: The database name
     Type: String
+    AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
   DBBackupRetentionPeriod:
     Description: 'The number of days to keep snapshots of the database.'
     Type: Number
@@ -131,6 +126,8 @@ Parameters:
     AllowedValues: [postgres, mysql, aurora-mysql, aurora]
   DatabaseSecurityGroup:
     Description: 'Database Security Group.'
+    Type: String
+  InstanceIdentifier:
     Type: String      
 
                 # Conditions CFN #
@@ -164,6 +161,7 @@ Resources:
     Type: 'AWS::RDS::DBInstance'
     Properties:
       AllocatedStorage: !Ref DBAllocatedStorage
+      DBInstanceIdentifier: !Ref InstanceIdentifier
       AllowMajorVersionUpgrade: false
       AutoMinorVersionUpgrade: true
       BackupRetentionPeriod: !Ref DBBackupRetentionPeriod
@@ -201,3 +199,7 @@ Resources:
       UseDefaultProcessorFeatures: !Ref UseDefaultProcessorFeatures
       VPCSecurityGroups:
       - !Ref DatabaseSecurityGroup
+Outputs:
+  EndpointandPort:
+    Description: Endpoint and port of the database
+    Value: !Join ['', [!Ref 'DatabaseEngine', '://', !GetAtt [DBInstance, Endpoint.Address], ':', !GetAtt [DBInstance, Endpoint.Port], /, !Ref 'DBName']]

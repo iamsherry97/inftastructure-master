@@ -122,9 +122,9 @@ Resources:
 
             
             - Name: LOAD_GENOME_STATE_MACHINE
-              Value: arn:aws:states:us-west-2:329245541944:stateMachine:GenbankToNeptuneStateMachine-QYf9VB6W0Nbk            
+              Value: arn:aws:states:us-west-2:329245541944:stateMachine:GenbankToNeptuneStateMachine-vRxRm9SWnIHR            
             - Name: FLASK_ENV
-              Value: production
+              Value: test
           LogConfiguration:
             LogDriver: awslogs
             Options:

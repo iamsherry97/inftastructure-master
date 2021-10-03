@@ -12,6 +12,7 @@ class select:
     VPC = "1"
     APPS = "2"
     RDS = "3"
+    TASKS = "4"
 class dir_name:
     apps = "0"
     infra = "1"
@@ -25,6 +26,7 @@ class applications:
 class rds:
     create = "1"
     delete = "2"
+    output = "3"
 class Templetes:
     deploy = "1"
     deleteit = "2"
@@ -59,7 +61,14 @@ def main():
             conf = get_conf(environment)
             get_config_data = config(app,conf)
             rds_module(conf,get_config_data[0],get_config_data[1])
-
+        elif input_value == select.TASKS:
+            app = "tasks"
+            print_separator()
+            print("Creating TasksRoles . . .")
+            environment = print_environments(app)      
+            conf = get_conf(environment)
+            get_config_data = config(app,conf)
+            tasks_module(conf,get_config_data[0],get_config_data[1])      
         print_separator()
         print("1. Please press '1' to continue")
         print("2. Press another key to exit the cli")
@@ -91,19 +100,19 @@ def print_environments(app):
     selected_input_index = input("\nPlease select the environment: ")
     env_data = environments[int(selected_input_index) - 1]
     print("You have selected: " + env_data)
+    print("\n")
     return env_data
 
 def vpc_module(conf,environment,templates):
-    print("Uploading templates, Please wait ...")
-    upload_files_to_bucket(environment,conf['BucketName'], dir_name.infra)
     print_separator()
     input_value = select_option_stacks(app)
 
     if input_value == vpc.create:
+        upload_files_to_bucket(environment,conf['BucketName'], dir_name.infra)
         identifier = conf["Identifier"]
         deploy_stack_priority_wise(conf)
         for i in range(len(templates)):
-            print(print_vpc_output(identifier, templates[i]))
+            print_vpc_output(identifier, templates[i], conf['Region_ID'])
 
     elif input_value == vpc.delete:
         delete_stack_priority_wise(conf)
@@ -119,7 +128,7 @@ def vpc_module(conf,environment,templates):
             stackcheck[i] = does_stack_exist(stack[i], cloudformation_client)
             if (stackcheck[i] != None ):
                 print("\n")
-                print_vpc_output(identifier, templates[i])
+                print_vpc_output(identifier, templates[i], conf['Region_ID'])
             else:
                 print("\nNo Template found!\n")    
 
@@ -168,39 +177,99 @@ def apps_module(conf,environment,templates):
         print_separator()
 
 def rds_module(conf,environment,templates):
-        print("Uploading templates, Please wait ...")
-        upload_files_to_bucket(environment,conf['BucketName'], dir_name.infra)
-        print("\n")
+        identifier = conf["Identifier"]
         input_value = select_option_stacks(app)   
         if input_value == rds.create:
+            upload_files_to_bucket(environment,conf['BucketName'], dir_name.infra)
+            print("\n")
             print("\nMake sure to specify snapshot-ID to create RDS from snapshot OR DBName to create RDS from scratch ")
             waiting=input("\nPress any key to continue. . .")
             template = templates[0]
             identifier = conf["Identifier"]
             deploy(template)
+            print_vpc_output(identifier, templates[0], conf['Region_ID'])
         elif input_value == rds.delete:
             template = templates[0]
             print(template)
             delete_stack_by_checking_dependency(template, conf)
+        elif input_value == rds.output:
+            region = conf["Region_ID"]
+            identifier = conf["Identifier"]
+            for i in range(len(templates)):
+                stack = {}
+                stackcheck = {}
+                stack[i] = "%s-%s-%s" % (identifier, environment, templates[i])
+                cloudformation_client = boto3.client('cloudformation', region_name=region)
+                stackcheck[i] = does_stack_exist(stack[i], cloudformation_client)
+                if (stackcheck[i] != None ):
+                    print("\n")
+                    print_vpc_output(identifier, templates[i], conf['Region_ID'])
+                else:
+                    print("\nNo Template found!\n") 
         else:
-            print("RDS creation skipped")
-            print_separator()
+            print("Wrong input. Please try again . .")
+def tasks_module(conf,environments,templates):
+    print_separator()
+    input_value = select_option_stacks(app)
+
+    if input_value == vpc.create:
+        upload_files_to_bucket(environment,conf['BucketName'], dir_name.infra)
+        identifier = conf["Identifier"]
+        deploy_stack_priority_wise(conf)
+        for i in range(len(templates)):
+            print_vpc_output(identifier, templates[i], conf['Region_ID'])
+
+    elif input_value == vpc.delete:
+        delete_stack_priority_wise(conf)
+
+    elif input_value == vpc.outputs:
+        region = conf["Region_ID"]
+        identifier = conf["Identifier"]
+        for i in range(len(templates)):
+            stack = {}
+            stackcheck = {}
+            stack[i] = "%s-%s-%s" % (identifier, environment, templates[i])
+            cloudformation_client = boto3.client('cloudformation', region_name=region)
+            stackcheck[i] = does_stack_exist(stack[i], cloudformation_client)
+            if (stackcheck[i] != None ):
+                print("\n")
+                print_vpc_output(identifier, templates[i], conf['Region_ID'])
+            else:
+                print("\nNo Template found!\n")    
+
+    else :
+        print("Tasks definition roles creation skipped")
+        print_separator()
 
 def print_function():
     print("\n""CLI used to deploy to AWS environments.""\n")
     print("Press '1' to create a VPC")
     print("Press '2' to deploy APPS")
     print("Press '3' to create RDS ")
+    print("Press '4' to print task definition roles ")
     selected_input= input("\nPlease select the the required option: ")
     return selected_input
-def print_vpc_output(identifier, template):
-    data = os.popen("aws cloudformation describe-stacks --stack-name %s-%s-%s" % (identifier, environment, template)).read()
+def print_vpc_output(identifier, template, region):
+    data = os.popen("aws cloudformation describe-stacks --stack-name %s-%s-%s --region %s" % (identifier, environment, template, region)).read()
     data_dump = json.loads(data)
     outputs = data_dump['Stacks'][0]['Outputs']
+    outputs.sort(key=lambda x:x["OutputKey"])
     t = Texttable()
     for i in outputs:
-       t.add_rows( [['ResourceName', 'ResourceValue'], [i['OutputKey'], i['OutputValue'] ]])
-    print(t.draw())
+        resource_type = "Other"
+        if i['OutputValue'].startswith("sg-"):
+           resource_type = "Security Group"
+        elif i['OutputValue'].startswith("subnet-"):
+            resource_type = "Subnet"
+        elif i['OutputValue'].startswith("vpc-"):
+            resource_type = "VPC"
+        elif i['OutputValue'].startswith("arn:"):
+            resource_type = "Role"
+        t.add_rows( [['ResourceName', 'ResourceValue', 'Type'], [i['OutputKey'], i['OutputValue'], resource_type ]])
+    if outputs:
+        print(t.draw())
+    else: 
+        print('No outputs found!')
 
 def delete_stack_by_checking_dependency(template, conf):
     region = conf["Region_ID"]
@@ -290,7 +359,11 @@ def select_option_stacks(app):
     print("1. Do you want to update/create the stack")
     print("2. Do you want to delete the stack")
     if app == 'vpc':
-        print("3. Show VPC & TaskDefinition outputs")
+        print("3. Show VPC output")
+    elif app == 'tasks':
+        print('3. Show Task definition outputs')
+    elif app == 'rds':
+        print('3. Show RDS output')
     else:
         print("\nOR Press any key to skip this step..")
     selected_input_index = input("\nHow do you want to proceed: ")
@@ -298,7 +371,7 @@ def select_option_stacks(app):
 
 def get_conf(environment):
     dir_name = ""
-    if app == "vpc" or app == "rds":
+    if (app == "vpc") or (app == "rds") or (app=="tasks"):
         dir_name = "infra"
     else:
         dir_name = "apps"
@@ -419,7 +492,7 @@ def get_apps():
 def get_environments(app):
     environments = []
     dir_name = ""
-    if app == "vpc" or app == "rds":
+    if (app == "vpc") or (app == "rds") or (app=="tasks"):
         dir_name = "infra"
     else:
         dir_name = "apps"
@@ -442,6 +515,7 @@ def delete_stack_priority_wise(conf):
         delete(template)
 
 def upload_files_to_bucket(environment,bucket_name, check_dir):
+    print("Uploading templates, Please wait ...")
     if check_dir == dir_name.infra:
         os.system("aws s3 cp infra/%s/ s3://%s%s/ --recursive " % (app, bucket_name, environment))
     else:
