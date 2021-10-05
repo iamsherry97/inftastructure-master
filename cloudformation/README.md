@@ -53,7 +53,7 @@ After the template gets deployed or deleted, the script will tell about the Clou
 ![](img/8.png)
 
 ## Addition of S3 Bucket for Each Application 
-
+----
 A new feature in our infrastructure is that we are creating `S3 Bucket` for the respective apps ( Dogma, Akita ). The script for creating the S3 Bucket is present under the `common/` directory.
 
 ## Configuration of S3 Bucket
@@ -347,7 +347,7 @@ Once this stack is deployed successfully, task definition IAM roles with their `
 
 
 ## Configuration of Environment File for IAM Roles
-----
+
 The environment file which in this case is `prod.json` under `infra/tasks/conf/` directory consists of configurations that the script needs to run the CloudFormation templates. This file is read by the script and then, the script sends the parameters to your desired template as well as the path of your desired template gets selected here. Whenever we want to create a new template or want to update a template, we need to work on this JSON file. You can also create JSON files for different environments i.e, `dev.json`. There are two main things that you need to keep in mind: `_path` and `parameters`.
 
 1) `_path key`, is primarily the path for your cloud formation template. We are directing to go and fetch template files from this path.
