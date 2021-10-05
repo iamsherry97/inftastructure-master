@@ -3,11 +3,11 @@
 This repo contains the CloudFormation code that you can use to deploy a completely new environment.
 
 ## 1) Creating a New Environment
-
+----
 We are going to deploy CloudFormation templates using a python script named `aws_cf.py`. Before that, we'll have to install the dependencies.
 
 ## How to install the script dependencies and run the script
-----
+
 First, we'll need to install the script dependencies beforehand. You will need Python3 for this purpose. Run the following command to install the dependencies:
 
     pip3 install -r requirements.txt
@@ -17,7 +17,7 @@ Now run the script using the following command:
     python3 aws_cf.py
 
 ## Creating a new Environment for an Application
-----
+
 When you first run the script, you'll have multiple options on the screen which are as follows:
 
 ![](img/1.png)
@@ -53,11 +53,11 @@ After the template gets deployed or deleted, the script will tell about the Clou
 ![](img/8.png)
 
 ## Addition of S3 Bucket for Each Application 
-----
+
 A new feature in our infrastructure is that we are creating `S3 Bucket` for the respective apps ( Dogma, Akita ). The script for creating the S3 Bucket is present under the `common/` directory.
 
 ## Configuration of S3 Bucket
-----
+
 For creating the S3 bucket for each application, simply add the below given `S3 Module` in the environment file of the application under the `apps/app_name/conf/` directory. The S3 bucket will be deployed first among all the stacks because it has the highest priority of `1` as written in the below code block.
 ```
    "S3":    {
@@ -69,7 +69,7 @@ For creating the S3 bucket for each application, simply add the below given `S3 
 ```    
 
 ## Configuration of Environment File for an Application
-----
+
 The file environment file ( `test/prod.json` ) under `apps/app_name/conf/` directory consists of configurations that the script needs to run the CloudFormation templates. This file is read by the script and then, the script sends the parameters to your desired template as well as the path of your desired template gets selected here. Whenever we want to create a new template or want to update a template, we need to work on this JSON file. You can also create JSON files for different environments i.e, `dev.json`. There are two main things that you need to keep in mind: `_path` and `parameters`.
 
 1) `_path key`, is primarily the path for your cloud formation template. We are directing to go and fetch template files from this path.
@@ -150,11 +150,11 @@ Now, you have three options for creation/update, deletion, and viewing outputs o
 
 After the template gets deployed or deleted, the script will tell about the CloudFormation stack's status as shown:
 
-![](img/8.png)
+![](img/9.png)
 
 
 ## Output of Vpc Block
----
+
 Once you have deployed the Vpc, a table will be displayed which will show necessary attributes with their values needed to be used in the environment file ( `sandbox.json` ) configuration. The table below is a replica of vpc's output table displayed in real-time. 
 
 
@@ -168,7 +168,7 @@ Once you have deployed the Vpc, a table will be displayed which will show necess
 
  
 ## Configuration of Environment File for Vpc
-----
+
 The environment file which in this case is `sandbox.json` under `infra/vpc/conf/` directory consists of configurations that the script needs to run the CloudFormation templates. This file is read by the script and then, the script sends the parameters to your desired template as well as the path of your desired template gets selected here. Whenever we want to create a new template or want to update a template, we need to work on this JSON file. You can also create JSON files for different environments i.e, `dev.json`. There are two main things that you need to keep in mind: `_path` and `parameters`.
 
 1) `_path key`, is primarily the path for your cloud formation template. We are directing to go and fetch template files from this path.
@@ -261,7 +261,7 @@ The environment file which in this case is `sandbox.json` under `infra/vpc/conf/
 
 
 ## Configuration of Values in Environment File
----
+
 The environment file consists of the priority of each resource and every resource has its defined priority and it will get deployed accordingly. The table below shows mandatory attributes needed to be configured in the environment file and how they should be configured:
 
 **Resource Name: Vpc** 
@@ -308,7 +308,7 @@ Contains a `List` of security groups while each security group has it's own set 
 
 
 # 3) IAM Role  
----
+----
 A new feature in our infrastructure is that we are creating IAM roles for the respective apps ( Dogma, Akita ) in the `infra` block. 
 When you first run the script, you'll have multiple options on the screen which are as follows:
 
@@ -334,10 +334,10 @@ Now, you have three options for creation/update, deletion, and viewing outputs o
 
 After the template gets deployed or deleted, the script will tell about the CloudFormation stack's status as shown:
 
-![](img/8.png)
+![](img/9.png)
 
 ## Output of IAM Role
----
+
 Once this stack is deployed successfully, task definition IAM roles with their `Amazon Resource Names (ARNs)` will be visible in the terminal in a table format as shown in the table below. IAM Roles are present under `infra/tasks/templates/` directory. 
 
 **IAM Role  Output**
@@ -400,10 +400,10 @@ Now, you have three options for creation/update, deletion, and viewing outputs o
 
 After the template gets deployed or deleted, the script will tell about the CloudFormation stack's status as shown:
 
-![](img/8.png)
+![](img/9.png)
 
 ## Output of RDS Block
----
+
 Once you have deployed the RDS, a table will be displayed which will show necessary attributes with their values needed to be used in the environment file ( `sandbox.json` ) configuration. The table below is a replica of RDS's output table displayed in real-time. 
 
 
@@ -419,7 +419,7 @@ Once you have deployed the RDS, a table will be displayed which will show necess
 
 
 ## Configuration of Environment File for RDS
-----
+
 The environment file ( `sandbox.json` ) under `infra/rds/conf/` directory consists of configurations that the script needs to run the CloudFormation templates. This file is read by the script and then, the script sends the parameters to your desired template as well as the path of your desired template gets selected here. Whenever we want to create a new template or want to update a template, we need to work on this JSON file. You can also create JSON files for different environments i.e, `dev.json`. There are two main things that you need to keep in mind: `_path` and `parameters`.
 
 1) `_path key`, is primarily the path for your cloud formation template. We are directing to go and fetch template files from this path.
@@ -465,7 +465,7 @@ The environment file ( `sandbox.json` ) under `infra/rds/conf/` directory consis
 
 
 ## Configuration of Values in Environment File
----
+
 The environment file consists of the priority of each resource and every resource has its defined priority and it will get deployed accordingly. The table below shows mandatory attributes needed to be configured in the environment file and how they should be configured. 
 
 **RDS Configuration** 
