@@ -124,12 +124,13 @@ Parameters:
     Description: 'Database Engine version.'
     Type: String
     AllowedValues: [postgres, mysql, aurora-mysql, aurora]
-  DatabaseSecurityGroup01:
+{%if 'sgGroup' in rds_data %}
+{% for key in rds_data['sgGroup'] %}
+  {{ key }}:
     Description: 'Database Security Group.'
     Type: String
-  DatabaseSecurityGroup02:
-    Description: 'Database Security Group.'
-    Type: String
+{%endfor%}
+{% endif %}
   InstanceIdentifier:
     Type: String      
 
@@ -201,8 +202,11 @@ Resources:
           Value: !Sub '${Identifier}-${Environment}-RDS'   
       UseDefaultProcessorFeatures: !Ref UseDefaultProcessorFeatures
       VPCSecurityGroups:
-      - !Ref DatabaseSecurityGroup01
-      - !Ref DatabaseSecurityGroup02
+{%if 'sgGroup' in rds_data %}
+{% for key in rds_data['sgGroup'] %}
+      - !Ref {{ key }}
+{%endfor%}
+{% endif %}
 
 
 Outputs:

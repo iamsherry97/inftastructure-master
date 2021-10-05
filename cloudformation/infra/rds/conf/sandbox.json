@@ -22,13 +22,16 @@
         "VPCId": "vpc-05962e5e7e0ece972",
         "privatesubnet01": "subnet-0d1bfb7271d9a417b",
         "privatesubnet02": "subnet-0be6e11f142aea0a0",
-        "DatabaseSecurityGroup": "sg-0e2a24f82530473ec",
         "DeleteAutomatedBackups": "false",
         "DeletionProtection": "false",
         "EnablePerformanceInsights": "false",
         "PreferredBackupWindow": "01:00-02:00",
         "PreferredMaintenanceWindow": "sat:07:00-sat:07:30",
         "EnableIAMDatabaseAuthentication": "false",
-        "UseDefaultProcessorFeatures": "false"
+        "UseDefaultProcessorFeatures": "false",
+        "_DBsgGroup": {
+            "DatabaseSecurityGroup01": "sg-0e2a24f82530473ec",
+            "DatabaseSecurityGroup02": "sg-01470a27745949209"
+        }
     }
 }

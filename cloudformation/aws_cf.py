@@ -524,7 +524,7 @@ def upload_files_to_bucket(environment,bucket_name, check_dir):
 
 def perform_jinja_templating(environment, app, conf):
     dir_name = ""
-    if app == "vpc":
+    if app == "vpc" or app == "rds":
         dir_name = "infra"
         jinja_template_path = "%s/%s/templates/" % (dir_name, app)
     else:
@@ -567,6 +567,20 @@ def perform_jinja_templating(environment, app, conf):
         rendered_text = j2_env.get_template(complete_jinja_template_path).render(
                             sg_data = sg_data,
                             subnet_data = subnet_data
+                        )
+        yaml_file_name = Path(jinja_template_file_name).stem + ".yml"
+        with open(jinja_template_path + yaml_file_name, "w") as yaml_file:
+            yaml_file.write(rendered_text)
+    if 'RDS' in conf and os.path.exists(complete_jinja_template_path):
+        rds_data = {}
+
+        if '_DBsgGroup' in conf['RDS']:
+            rds_data['sgGroup']= conf['RDS']['_DBsgGroup']
+
+        j2_env = Environment(loader=FileSystemLoader(THIS_DIR),
+                         trim_blocks=True)
+        rendered_text = j2_env.get_template(complete_jinja_template_path).render(
+                            rds_data = rds_data
                         )
         yaml_file_name = Path(jinja_template_file_name).stem + ".yml"
         with open(jinja_template_path + yaml_file_name, "w") as yaml_file:

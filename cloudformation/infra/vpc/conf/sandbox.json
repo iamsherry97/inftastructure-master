@@ -5,7 +5,7 @@
     "Environment": "sandbox",
     "Identifier": "depatment",
     "VPC" : {
-        "_Priority" : 2,
+        "_Priority" : 1,
         "_Path" : "/templates/vpc.yml",
         "VpcCidrBlock": "10.0.0.0/16", 
         "_subnets" : [{
