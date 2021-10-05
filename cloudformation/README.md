@@ -43,14 +43,15 @@ You can either run all the templates priority-wise or run a single template your
 
 ![](img/6.png)
 
-
 Once you select the desired option, it will start update/create or delete a template as follows:
 
 ![](img/7.png)
 
+
 After the template gets deployed or deleted, the script will tell about the CloudFormation stack's status as shown:
 
 ![](img/8.png)
+
 
 ## Addition of S3 Bucket for Each Application 
 ----
