@@ -7,7 +7,7 @@ This repo contains the CloudFormation code that you can use to deploy a complete
 We are going to deploy CloudFormation templates using a python script named `aws_cf.py`. Before that, we'll have to install the dependencies.
 
 ## 1) How to install the script dependencies and run the script
-
+----
 First, we'll need to install the script dependencies beforehand. You will need Python3 for this purpose. Run the following command to install the dependencies:
 
     pip3 install -r requirements.txt
@@ -17,7 +17,7 @@ Now run the script using the following command:
     python3 aws_cf.py
 
 ## Creating a new Environment for an Application
-
+----
 When you first run the script, you'll have multiple options on the screen which are as follows:
 
 ![](img/1.png)
@@ -69,7 +69,7 @@ For creating the S3 bucket for each application, simply add the below given `S3 
 ```    
 
 # 2) Configuration of Environment File for an Application
-
+----
 The file environment file ( `test/prod.json` ) under `apps/app_name/conf/` directory consists of configurations that the script needs to run the CloudFormation templates. This file is read by the script and then, the script sends the parameters to your desired template as well as the path of your desired template gets selected here. Whenever we want to create a new template or want to update a template, we need to work on this JSON file. You can also create JSON files for different environments i.e, `dev.json`. There are two main things that you need to keep in mind: `_path` and `parameters`.
 
 1) `_path key`, is primarily the path for your cloud formation template. We are directing to go and fetch template files from this path.
@@ -265,16 +265,27 @@ The environment file which in this case is `sandbox.json` under `infra/vpc/conf/
 The environment file consists of the priority of each resource and every resource has its defined priority and it will get deployed accordingly. The table below shows mandatory attributes needed to be configured in the environment file and how they should be configured:
 
 **Resource Name: Vpc** 
+
+The Vpc block consists of a particular `VpcCidrBlock` defined in the environment file along with subnets and security groups as follows:
 | Property-Name                        | Description              | Value              | Type          |
 | :---                                 | :----                    | :---               | :---          |
 | VpcCidrBlock | The primary IPv4 CIDR block for the VPC          | x.x.x.x/x         | String |
+
+
 **Resource Name: Subnets**  
+
 Contains a `List` of `Public` and `Private` Subnets defined individually in the environment file. Both, public and private subnet's lists have below mentioned attributes:
 | Property-Name                        | Description              | Value              | Type          |
+| :---                                 | :----                    | :---               | :---          |
 | CidrBlock | The IPv4 CIDR block assigned to the subnet          | x.x.x.x/x         | String |
-| AvailabilityZone |  availability zone in which you want subnet to be  | us-west-2x | String |
+| AvailabilityZone |  availability zone in which you want subnet to be  | us-west-xx | String |     
+
+
 **Resource Name: Security Group** 
+
+Contains a `List` of security groups while each security group has it's own set of `Inbound` and `Outbound` rules defined in the environment file:
 | Property-Name                        | Description              | Value              | Type          |
+| :---                                 | :----                    | :---               | :---          |
 | GroupDescription | A description for the security group. This is informational only | Security Group for Database | String|
 | GroupName              | The name of the security group | Postgres-SecurityGroup | String |
 |**Inbound Rules For Security Group**|
@@ -293,6 +304,7 @@ Contains a `List` of `Public` and `Private` Subnets defined individually in the 
 | IpProtocol | The IP protocol name (tcp, udp, icmp, icmpv6) or number | tcp/udp | String |
 | FromPort | The start of port range for the TCP and UDP protocols, or an ICMP/ICMPv6 type number. | A specific port like `3306` for `mysql`. Value of -1 indicates all ICMP/ICMPv6 types.  | Integer |
 | ToPort                   | The end of port range for the TCP and UDP protocols, or an ICMP/ICMPv6 code. | A specfic port like `80` for `http`. Value of -1 indicates all ICMP/ICMPv6 types. | Integer|
+
 
 
 # 5) Addition of IAM Role Creation 
