@@ -1,0 +1,115 @@
+{
+    "Region_ID": "us-west-2",
+    "Bucket_URI" : "https://wajahat2-test.s3.us-west-2.amazonaws.com/infra/vpc/",
+    "BucketName": "wajahat2-test/infra/vpc/",
+    "Environment": "sandbox",
+    "Identifier": "depatment",
+    "VPC" : {
+        "_Priority" : 1,
+        "_Path" : "/templates/vpc.yml",
+        "VpcCidrBlock": "10.0.0.0/16", 
+        "_subnets" : [{
+            "Public":[
+                {
+                    "CidrBlock": "10.0.1.0/24",
+                    "AvailabilityZone": "us-west-2a"
+                },
+                {
+                    "CidrBlock": "10.0.2.0/24",
+                    "AvailabilityZone": "us-west-2b"
+                },
+                {
+                    "CidrBlock": "10.0.3.0/24",
+                    "AvailabilityZone": "us-west-2c"
+                }
+            ],
+            "Private":[
+                {
+                    "CidrBlock": "10.0.4.0/24",
+                    "AvailabilityZone": "us-west-2a"
+                },
+                {
+                    "CidrBlock": "10.0.5.0/24",
+                    "AvailabilityZone": "us-west-2b"
+                }
+            ]
+        }],
+        "_securitygroup": [{
+            "Name": "Sg01",
+            "GroupDescription": "This is the description of group",
+            "GroupName": "SgGroupName",
+            "inbound":[
+                {
+                    "CidrIp": "0.0.0.0/16",
+                    "IpProtocol": "tcp",
+                    "FromPort": "3306",
+                    "ToPort": "3306",
+                    "Description": "'Allow Port'"
+                },
+                {
+                    "CidrIp": "0.0.0.0/16",
+                    "IpProtocol": "tcp",
+                    "FromPort": "22",
+                    "ToPort": "22",
+                    "Description": "'Allow Port'"
+                },
+                {
+                    "SourceSecurityGroupId": "Sg01",
+                    "IpProtocol": "tcp",
+                    "FromPort": "3306",
+                    "ToPort": "3306",
+                    "Description": "'Allow Port'"
+                }
+            ],
+            "outbound":[
+                {
+                    "CidrIp": "0.0.0.0/0",
+                    "IpProtocol": "-1",
+                    "FromPort": "-1",
+                    "ToPort": "-1",
+                    "description": "'ports'"
+                }
+            ]
+            
+        },
+        {
+            "Name": "Sg02",
+            "GroupDescription": "This is the description of group",
+            "GroupName": "Sg-02",
+            "inbound":[
+                {
+                    "SourceSecurityGroupId": "Sg02" ,
+                    "IpProtocol": "tcp",
+                    "FromPort": "22",
+                    "ToPort": "22",
+                    "description": "'Allow all traffic from it's own SG'"
+                },
+                {
+                    "CidrIp": "0.0.0.0/0",
+                    "IpProtocol": "-1",
+                    "FromPort": "-1",
+                    "ToPort": "-1",
+                    "description": "'Allow all traffic'"
+                }
+                ],
+            "outbound":[
+                {
+                    "CidrIp": "10.0.0.0/16",
+                    "IpProtocol": "tcp",
+                    "FromPort": "80",
+                    "ToPort": "80",
+                    "description": "'Allow Port'"
+                },
+                {
+                    "CidrIp": "0.0.0.0/0",
+                    "IpProtocol": "-1",
+                    "FromPort": "-1",
+                    "ToPort": "-1",
+                    "description": "'ports'"
+                }
+            ]
+        }
+    ]
+    }
+
+}

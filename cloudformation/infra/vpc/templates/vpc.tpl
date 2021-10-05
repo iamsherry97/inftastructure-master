@@ -121,36 +121,49 @@ Resources:
       SubnetId: !Ref PrivateSubnet{{i+1}}
 {% endfor %}
 
+{% for i in range(sg_data['SecurityGroup'] | length) %}
+{% for j in range(sg_data['SecurityGroup'][i]['inbound'] | length) %}
+  {{ sg_data['SecurityGroup'][i]['Name'] }}Ingress0{{j+1}}:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+{% if 'CidrIp' in sg_data['SecurityGroup'][i]['inbound'][j]  %}
+      CidrIp: {{ sg_data['SecurityGroup'][i]['inbound'][j]['CidrIp']}}
+{% else %}
+      SourceSecurityGroupId: !Ref {{ sg_data['SecurityGroup'][i]['inbound'][j]['SourceSecurityGroupId']}}
+{% endif %}
+      GroupId: !Ref {{ sg_data['SecurityGroup'][i]['Name'] }}
+      IpProtocol: {{ sg_data['SecurityGroup'][i]['inbound'][j]['IpProtocol'] }}
+      FromPort: {{ sg_data['SecurityGroup'][i]['inbound'][j]['FromPort'] }}
+      ToPort: {{ sg_data['SecurityGroup'][i]['inbound'][j]['ToPort'] }}
+{%endfor%}
+{%endfor%}
+
+{% for i in range(sg_data['SecurityGroup'] | length) %}
+{% for j in range(sg_data['SecurityGroup'][i]['outbound'] | length) %}
+  {{ sg_data['SecurityGroup'][i]['Name'] }}Egress0{{j+1}}:
+    Type: 'AWS::EC2::SecurityGroupEgress'
+    Properties:
+      CidrIp: {{ sg_data['SecurityGroup'][i]['outbound'][j]['CidrIp']}}
+      GroupId: !Ref {{ sg_data['SecurityGroup'][i]['Name'] }}
+      IpProtocol: {{ sg_data['SecurityGroup'][i]['outbound'][j]['IpProtocol'] }}
+      FromPort: {{ sg_data['SecurityGroup'][i]['outbound'][j]['FromPort'] }}
+      ToPort: {{ sg_data['SecurityGroup'][i]['outbound'][j]['ToPort'] }}
+{%endfor%}
+{%endfor%}
+
+
 
 {% if 'SecurityGroup' in sg_data %}
 {% for i in range(sg_data['SecurityGroup'] | length) %}
-  SecurityGroup{{i+1}}:
+  {{ sg_data['SecurityGroup'][i]['Name'] }}:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       GroupDescription: '{{ sg_data['SecurityGroup'][i]['GroupDescription'] }}'
       GroupName: {{ sg_data['SecurityGroup'][i]['GroupName'] }}
-      SecurityGroupIngress:
-{% for j in range(sg_data['SecurityGroup'][i]['inbound'] | length) %}
-{% if sg_data['SecurityGroup'][i]['inbound'][j]['CidrIp'] != ''  %}
-        - CidrIp: {{ sg_data['SecurityGroup'][i]['inbound'][j]['CidrIp']}}
-{% else %}
-        - SourceSecurityGroupId: !Ref {{ sg_data['SecurityGroup'][i]['inbound'][j]['SourceSecurityGroupId']}}
-{% endif %}
-          IpProtocol: {{ sg_data['SecurityGroup'][i]['inbound'][j]['IpProtocol'] }}
-          FromPort: {{ sg_data['SecurityGroup'][i]['inbound'][j]['FromPort'] }}
-          ToPort: {{ sg_data['SecurityGroup'][i]['inbound'][j]['ToPort'] }}
-{%endfor%}
-      SecurityGroupEgress:
-{% for k in range(sg_data['SecurityGroup'][i]['outbound'] | length) %}
-        - CidrIp: {{ sg_data['SecurityGroup'][i]['outbound'][k]['CidrIp']}}
-          IpProtocol: {{ sg_data['SecurityGroup'][i]['outbound'][k]['IpProtocol'] }}
-          FromPort: {{ sg_data['SecurityGroup'][i]['outbound'][k]['FromPort'] }}
-          ToPort: {{ sg_data['SecurityGroup'][i]['outbound'][k]['ToPort'] }}
-{%endfor%}
       VpcId: !Ref MyVpc
       Tags:
         - Key: Name
-          Value: !Sub '${Identifier}-${Environment}-SecurityGroup{{i+1}}'
+          Value: !Sub '${Identifier}-${Environment}-{{ sg_data['SecurityGroup'][i]['Name'] }}'
 {%endfor%}
 {%endif %}
           
@@ -167,7 +180,7 @@ Outputs:
     Value: !Ref PrivateSubnet{{i+1}}
 {%endfor%}
 {% for i in range(sg_data['SecurityGroup'] | length) %}
-  SecurityGroup{{i+1}}:
+  {{ sg_data['SecurityGroup'][i]['Name'] }}:
     Description: '{{ sg_data['SecurityGroup'][i]['GroupDescription'] }}'
-    Value: !Ref SecurityGroup{{i+1}}
+    Value: !Ref {{ sg_data['SecurityGroup'][i]['Name'] }}
 {%endfor%}
