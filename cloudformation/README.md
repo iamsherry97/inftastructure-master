@@ -124,7 +124,7 @@ The file environment file ( `test/prod.json` ) under `apps/app_name/conf/` direc
 }
 ```
 
-# 3) Addition of the VPC Block
+# 3) Addition of VPC
 ----
 When you first run the script, you'll have multiple options on the screen which are as follows:
 
@@ -307,7 +307,7 @@ Contains a `List` of security groups while each security group has it's own set 
 
 
 
-# 5) Addition of IAM Role Creation 
+# 5) Addition of IAM Role  
 ---
 A new feature in our infrastructure is that we are creating IAM roles for the respective apps ( Dogma, Akita ) in the `infra` block. 
 When you first run the script, you'll have multiple options on the screen which are as follows:
@@ -336,9 +336,9 @@ After the template gets deployed or deleted, the script will tell about the Clou
 
 ![](img/8.png)
 
-## Output of Task Definition Block
+## Output of IAM Role
 ---
-Once this stack is deployed successfully, task definition roles with their `Amazon Resource Names (ARNs)` will be visible in the terminal in a table format as shown in the table below. IAM Roles are present under `infra/tasks/templates/` directory. 
+Once this stack is deployed successfully, task definition IAM roles with their `Amazon Resource Names (ARNs)` will be visible in the terminal in a table format as shown in the table below. IAM Roles are present under `infra/tasks/templates/` directory. 
 
 **IAM Role  Output**
 | ResourceName   | ResourceValue|
@@ -374,7 +374,7 @@ The environment file which in this case is `prod.json` under `infra/tasks/conf/`
 
 
 
-# 7) Addition of the RDS Block 
+# 7) Addition of RDS 
 ----
 When you first run the script, you'll have multiple options on the screen which are as follows:
 
